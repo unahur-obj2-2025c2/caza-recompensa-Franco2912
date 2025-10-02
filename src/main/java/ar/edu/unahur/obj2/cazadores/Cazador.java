@@ -1,7 +1,7 @@
 package ar.edu.unahur.obj2.cazadores;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import ar.edu.unahur.obj2.profugos.Profugo;
 import ar.edu.unahur.obj2.zonas.Zona;
@@ -9,7 +9,7 @@ import ar.edu.unahur.obj2.zonas.Zona;
 public abstract class Cazador {
     protected Integer experiencia;
     protected final Zona zona;
-    protected final Set<Profugo> profugosCapturados = new HashSet<>();
+    protected final List<Profugo> profugosCapturados = new ArrayList<>();
 
     protected Cazador(Integer experiencia, Zona zona) {
         this.experiencia = experiencia;
@@ -28,8 +28,12 @@ public abstract class Cazador {
         return experiencia;
     }
 
-    public Set<Profugo> getProfugosCapturados() {
+    public List<Profugo> getProfugosCapturados() {
         return profugosCapturados;
+    }
+
+    public Integer getCantidadDeProfugosCapturados() {
+        return profugosCapturados.size();
     }
 
     public void agregarProfugo(Profugo profugo) {
@@ -40,17 +44,24 @@ public abstract class Cazador {
         this.profugosCapturados.remove(profugo);
     }
 
-    public void capturar(Profugo profugo) {
-        if (Boolean.TRUE.equals(this.cazar(profugo))) {
-            this.experiencia = this.incrementarExperiencia();
-            this.agregarProfugo(profugo);
-            this.zona.eliminarProfugo(profugo);
-        } else {
-            this.intimidar(profugo);
-        }
+    public void capturar() {
+        final List<Profugo> profugosEnZona = zona.getProfugos();
+
+        // Collect profugos to be captured in a separate list to avoid concurrent modification
+        List<Profugo> capturables = new ArrayList<>();
+        profugosEnZona.stream().filter(this::cazar).forEach(capturables::add);
+
+        capturables.forEach(p -> {
+            this.agregarProfugo(p);
+            this.zona.eliminarProfugo(p);
+        });
+
+        profugosEnZona.stream().filter(p -> !this.cazar(p)).forEach(this::intimidar);
+        experiencia += incrementarExperiencia();
     }
 
     private Integer incrementarExperiencia() {
-        return profugosCapturados.stream().mapToInt(p -> p.getHabilidad()).min().orElse(0) + profugosCapturados.size() * 2;
+        return zona.getProfugos().stream().mapToInt(p -> p.getHabilidad()).min().orElse(0) + profugosCapturados.size() * 2;
     }
+
 }

@@ -1,13 +1,13 @@
 package ar.edu.unahur.obj2.zonas;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import ar.edu.unahur.obj2.profugos.Profugo;
 
 public class Zona {
     private final String nombre;
-    private final Set<Profugo> profugos = new HashSet<>();
+    private final List<Profugo> profugos = new ArrayList<>();
 
     public Zona(String nombre) {
         this.nombre = nombre;
@@ -17,7 +17,7 @@ public class Zona {
         return nombre;
     }
 
-    public Set<Profugo> getProfugos() {
+    public List<Profugo> getProfugos() {
         return profugos;
     }
 
