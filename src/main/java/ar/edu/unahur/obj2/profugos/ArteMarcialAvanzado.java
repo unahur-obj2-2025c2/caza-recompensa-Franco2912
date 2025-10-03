@@ -7,18 +7,8 @@ public class ArteMarcialAvanzado extends ProfugoDecorable {
     }
 
     @Override
-    public Integer doGetHabilidad() {
-        return 2;
-    }
-
-    @Override
-    public Boolean doGetNervioso() {
-        return profugo.esNervioso();
-    }
-
-    @Override
-    public Integer doGetInocencia(){
-        return profugo.getInocencia();
+    public Integer getHabilidad() {
+        return  super.getHabilidad() * 2;
     }
 
 }

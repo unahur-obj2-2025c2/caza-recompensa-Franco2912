@@ -1,11 +1,13 @@
 package ar.edu.unahur.obj2.profugos;
 
 public class Profugo implements IProfugo{
-    private Integer nivelDeInocencia;
-    private Integer nivelDeHabilidad;
-    private Boolean esNervioso;
+    protected Integer nivelDeInocencia;
+    protected Integer nivelDeHabilidad;
+    protected Boolean esNervioso;
     
     public Profugo(Integer nivelDeInocencia, Integer nivelDeHabilidad, Boolean esNervioso) {
+        if (nivelDeHabilidad <= 0 || nivelDeHabilidad > 100)
+            throw new IllegalArgumentException("La habilidad es un valor entre 1 y 100");
         this.nivelDeInocencia = nivelDeInocencia;
         this.nivelDeHabilidad = nivelDeHabilidad;
         this.esNervioso = esNervioso;

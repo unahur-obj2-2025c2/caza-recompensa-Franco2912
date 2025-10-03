@@ -1,17 +1,23 @@
 package ar.edu.unahur.obj2.reporteria;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import ar.edu.unahur.obj2.cazadores.Cazador;
-import ar.edu.unahur.obj2.profugos.Profugo;
+import ar.edu.unahur.obj2.profugos.IProfugo;
+import ar.edu.unahur.obj2.zonas.Zona;
 
 public class Reporteria {
 
     private final List<Cazador> cazadores;
 
+    public Reporteria() {
+        this.cazadores = new ArrayList<>();
+    }
+
     public Reporteria(List<Cazador> cazadores) {
-        this.cazadores = new ArrayList<>(cazadores);
+        this.cazadores = cazadores;
     }
 
     public List<Cazador> getCazadores() {
@@ -26,7 +32,7 @@ public class Reporteria {
         this.cazadores.remove(cazador);
     }
 
-    public List<Profugo> profugosCaptudados() {
+    public List<IProfugo> profugosCaptudados() {
         return cazadores.stream().flatMap(c -> c.getProfugosCapturados().stream()).toList();
     }
 
@@ -34,12 +40,16 @@ public class Reporteria {
         return profugosCaptudados().size();
     }
 
-    public Profugo profugoMasHabil(){
-        return profugosCaptudados().stream().max((p1, p2) -> p1.getHabilidad().compareTo(p2.getHabilidad())).orElse(null);
+    public IProfugo profugoMasHabil(){
+        return profugosCaptudados().stream().max((Comparator.comparingInt(IProfugo::getHabilidad))).orElse(null);
     }
 
     public Cazador cazadorConMasCaptudas(){
-        return cazadores.stream().max((c1, c2) -> c1.getCantidadDeProfugosCapturados().compareTo(c2.getCantidadDeProfugosCapturados())).orElse(null);
+        return cazadores.stream().max((c1, c2) -> c1.getCantidadDeProfugosCapturados().compareTo(c2.getCantidadDeProfugosCapturados())).orElseThrow(() -> new IllegalStateException("No hay cazadores con profugos capturados"));
+    }
+
+    public void procesoCaptura(Cazador cazador, Zona zona) {
+        cazador.capturar(zona);
     }
 
 }

@@ -7,17 +7,7 @@ public class ProteccionLegal extends ProfugoDecorable {
     }
 
     @Override
-    public Integer doGetHabilidad() {
-        return 1;
-    }
-
-    @Override
-    public Boolean doGetNervioso() {
-        return profugo.esNervioso();
-    }
-
-    @Override
-    public Integer doGetInocencia(){
-        return 40;
+    public Integer getInocencia(){
+        return Math.max(profugo.getInocencia(), 40);
     }
 }

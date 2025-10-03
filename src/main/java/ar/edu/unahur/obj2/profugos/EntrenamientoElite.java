@@ -7,18 +7,9 @@ public class EntrenamientoElite extends ProfugoDecorable {
     }
 
     @Override
-    public Integer doGetHabilidad() {
-        return 1;
-    }
-
-    @Override
-    public Boolean doGetNervioso() {
+    public Boolean esNervioso() {
         return Boolean.FALSE;
     }
 
-    @Override
-    public Integer doGetInocencia(){
-        return profugo.getInocencia();
-    }
 
 }

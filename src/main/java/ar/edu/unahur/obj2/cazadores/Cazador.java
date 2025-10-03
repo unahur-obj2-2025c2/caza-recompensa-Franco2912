@@ -1,26 +1,32 @@
 package ar.edu.unahur.obj2.cazadores;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
-import ar.edu.unahur.obj2.profugos.Profugo;
+import ar.edu.unahur.obj2.profugos.IProfugo;
 import ar.edu.unahur.obj2.zonas.Zona;
 
 public abstract class Cazador {
     protected Integer experiencia;
-    protected final Zona zona;
-    protected final List<Profugo> profugosCapturados = new ArrayList<>();
+    protected final List<IProfugo> profugosCapturados;
 
-    protected Cazador(Integer experiencia, Zona zona) {
+    protected Cazador(Integer experiencia) {
         this.experiencia = experiencia;
-        this.zona = zona;
+        this.profugosCapturados = new ArrayList<>();
     }
 
-    public Boolean cazar(Profugo profugo) {
-        return this.experiencia > zona.getProfugo(profugo).getInocencia();
+    protected Cazador(Integer experiencia, List<IProfugo> profugosCapturados) {
+        this.experiencia = experiencia;
+        this.profugosCapturados = profugosCapturados;
     }
 
-    public void intimidar(Profugo profugo) {
+    public Boolean cazar(IProfugo profugo) {
+        return this.experiencia > profugo.getInocencia();
+    }
+
+    public void intimidar(IProfugo profugo) {
         profugo.disminuirInocencia();
     }
 
@@ -28,7 +34,7 @@ public abstract class Cazador {
         return experiencia;
     }
 
-    public List<Profugo> getProfugosCapturados() {
+    public List<IProfugo> getProfugosCapturados() {
         return profugosCapturados;
     }
 
@@ -36,32 +42,39 @@ public abstract class Cazador {
         return profugosCapturados.size();
     }
 
-    public void agregarProfugo(Profugo profugo) {
+    public void agregarProfugo(IProfugo profugo) {
         this.profugosCapturados.add(profugo);
     }
 
-    public void eliminarProfugo(Profugo profugo) {
+    public void eliminarProfugo(IProfugo profugo) {
         this.profugosCapturados.remove(profugo);
     }
 
-    public void capturar() {
-        final List<Profugo> profugosEnZona = zona.getProfugos();
+    public void capturar(Zona zona) {
+        List<IProfugo> intimidados = new ArrayList<>();
+        List<IProfugo> profugosEnZona = new ArrayList<>(zona.getProfugos());
 
-        // Collect profugos to be captured in a separate list to avoid concurrent modification
-        List<Profugo> capturables = new ArrayList<>();
-        profugosEnZona.stream().filter(this::cazar).forEach(capturables::add);
+        profugosEnZona.stream().forEach(
+                profugo -> {
+                    if (Boolean.TRUE.equals(this.cazar(profugo))) {
+                        profugosCapturados.add(profugo);
+                        zona.eliminarProfugo(profugo);
+                    } else {
+                        this.intimidar(profugo);
+                        intimidados.add(profugo);
+                    }
+                });
 
-        capturables.forEach(p -> {
-            this.agregarProfugo(p);
-            this.zona.eliminarProfugo(p);
-        });
-
-        profugosEnZona.stream().filter(p -> !this.cazar(p)).forEach(this::intimidar);
-        experiencia += incrementarExperiencia();
+        this.incrementarExperiencia(intimidados);
     }
 
-    private Integer incrementarExperiencia() {
-        return zona.getProfugos().stream().mapToInt(p -> p.getHabilidad()).min().orElse(0) + profugosCapturados.size() * 2;
+    private void incrementarExperiencia(List<IProfugo> intimidados) {
+        Optional<Integer> minimaHabilidad = encontrarMinimaHabilidad(intimidados);
+        experiencia += minimaHabilidad.orElse(0) + 2 * profugosCapturados.size();
+    }
+
+    private Optional<Integer> encontrarMinimaHabilidad(List<IProfugo> intimidados) {
+        return intimidados.stream().map(IProfugo::getHabilidad).min(Comparator.naturalOrder());
     }
 
 }

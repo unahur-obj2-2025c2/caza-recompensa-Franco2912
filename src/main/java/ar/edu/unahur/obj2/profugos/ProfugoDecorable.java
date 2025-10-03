@@ -32,23 +32,16 @@ public abstract class ProfugoDecorable implements IProfugo {
 
     @Override
     public Integer getInocencia() {
-        return this.doGetInocencia();
+        return profugo.getInocencia();
     }
 
     @Override
     public Integer getHabilidad() {
-        return profugo.getHabilidad() * doGetHabilidad();
+        return profugo.getHabilidad();
     }
 
     @Override
     public Boolean esNervioso() {
-        return this.doGetNervioso();
+        return profugo.esNervioso();
     }
-
-    public abstract Integer doGetHabilidad();
-
-    public abstract Boolean doGetNervioso();
-
-    public abstract Integer doGetInocencia();
-    
 }
